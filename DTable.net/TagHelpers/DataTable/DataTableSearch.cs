@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TagHelpers
+namespace TagHelpers.DataTable
 {
     public class DataTableSearch
     {

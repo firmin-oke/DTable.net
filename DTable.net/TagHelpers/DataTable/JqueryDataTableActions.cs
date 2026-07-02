@@ -1,14 +1,12 @@
-﻿using DvStyle.Memory.Resources.Enums;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DvStyle.Memory.DataLayer.Identity;
 
-namespace TagHelpers
+namespace TagHelpers.DataTable
 {
     [HtmlTargetElement("datatable-actions", ParentTag = "datatable-settings", TagStructure = TagStructure.NormalOrSelfClosing)]
     [RestrictChildren("datatable-action-updaterow", "datatable-action-addto", "datatable-action-edit", "datatable-action-delete", 

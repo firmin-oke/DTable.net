@@ -1,9 +1,9 @@
-﻿using DvStyle.Memory.Resources.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
-                                                           
-namespace TagHelpers
+using TagHelpers.Enums;
+
+namespace TagHelpers.DataTable
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class JQueryDataTableAttribute : Attribute

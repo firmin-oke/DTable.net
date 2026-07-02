@@ -1,6 +1,4 @@
-﻿using DvStyle.Memory.Resources.DataTable;
-using DvStyle.Memory.Resources.Enums;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -9,28 +7,28 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using DvStyle.Memory.DataLayer.Identity;
-using DvStyle.Memory.EntityViewModel;
-using TagHelpers;
+using TagHelpers.Enums;
+using TagHelpers.Extensions;
+using TagHelpers.Helpers;
 
 
-namespace DvStyle.Memory.WebApp.CustomTagHelpers
+namespace TagHelpers.DataTable
 {
     [HtmlTargetElement("datatable-container", TagStructure = TagStructure.NormalOrSelfClosing)]
     [RestrictChildren("datatable", "datatable-tooltip-modal", "datatable-tooltip-modal-select", "datatable-tooltip-external", "datatable-tooltip-inline", "datatable-settings")]
     public class JQueryDataTableContainer : TagHelper
     {
-        [HtmlAttributeName("ressource")]
-        public OperationRessource Ressource { get; set; }
+        //[HtmlAttributeName("ressource")]
+        //public OperationRessource Ressource { get; set; }
 
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
 
-            if (context.AllAttributes["ressource"] != null)
-            {
-                context.Items.Add(new KeyValuePair<object, object>(TagHelperExtensions.OperationRessourceKey, Ressource));
-            }
+            //if (context.AllAttributes["ressource"] != null)
+            //{
+            //    context.Items.Add(new KeyValuePair<object, object>(TagHelperExtensions.OperationRessourceKey, Ressource));
+            //}
             context.Items.Add(new KeyValuePair<object, object>("datatablecontainerid", context.UniqueId));
         }
 
@@ -107,6 +105,8 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
 
         protected List<TagBuilder> TagItems = new List<TagBuilder>();
 
+        public bool HasPermission { get; set; } = true;
+
         public JQueryDataTableToolTip(IHttpContextAccessor contextAccessor)
         {
             _contextAccessor = contextAccessor;
@@ -121,15 +121,15 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
         {
             base.Process(context, output);
             output.TagName = "div";
-            output.Attributes.Add("style", "display:inline;");         
-            TagBuilder refreshbtn  = new TagBuilder("button");
+            output.Attributes.Add("style", "display:inline;");
+            TagBuilder refreshbtn = new TagBuilder("button");
             refreshbtn.AddCssClass("refreshgridbtn btn btn-icon btn-dark");
 
             if (DisabledToolTip)
             {
                 refreshbtn.AddCssClass("disabled");
                 refreshbtn.Attributes.Add("disabled", "disabled");
-            }        
+            }
             var spanrefresh = new TagBuilder("i");
             spanrefresh.AddCssClass("ti-reload");
             refreshbtn.Attributes.Add("data-tableid", DataTableId);
@@ -137,7 +137,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
             TagItems.Add(refreshbtn);
             if (!RefreshOnly)
             {
-                if(context.CheckUserPermissionAccess(OperationAction.Create, _contextAccessor.HttpContext.User))
+                if (HasPermission)
                 {
                     TooltipButton.AddCssClass("btn btn-primary btn-icon");
                     TooltipButton.Attributes.Add("title", ToolTipButtontitle);
@@ -156,38 +156,34 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                 }
             }
 
-            if (DisplayCustomButton)
+            if (DisplayCustomButton && HasPermission)
             {
-                if (context.CheckUserPermissionAccess(OperationAction.Create, _contextAccessor.HttpContext.User))
-                {
-                    CustomButtonButton = new TagBuilder("button");
-                    CustomButtonButton.AddCssClass("btn btn-primary btn-icon");
-                    CustomButtonButton.Attributes.Add("title", CustomButtonTitle);
+                CustomButtonButton = new TagBuilder("button");
+                CustomButtonButton.AddCssClass("btn btn-primary btn-icon");
+                CustomButtonButton.Attributes.Add("title", CustomButtonTitle);
 
-                    if (DisabledToolTip)
-                    {
-                        CustomButtonButton.AddCssClass("disabled");
-                        CustomButtonButton.Attributes.Add("disabled", "disabled");
-                    }
-                    //CustomButtonButton.AddCssClass("ml-1");
-                    CustomButtonButton.Attributes.Add("data-tooltipaction", CustomButtonTooltipAction);
-                    CustomButtonButton.AddCssClass("init-tooltip-modal");
-                    CustomButtonButton.Attributes.Add("data-modaltitle", CustomButtonModaltitle);
-                    CustomButtonButton.Attributes.Add("data-footerclosebtn", CustomButtonDisplayFooterCloseBtn.ToString().ToLower());
-                    CustomButtonButton.Attributes.Add("data-footersubmitbtn", CustomButtonDisplayFooterSubmitBtn.ToString().ToLower());
-                    CustomButtonButton.Attributes.Add("data-modalsize", CustomButtonModalsize);
-                    CustomButtonButton.Attributes.Add("data-modalcallbackgrid", CustomButtonModalcallbackgrid);
-                    CustomButtonButton.Attributes.Add("data-modalid", CustomButtonModalid);
-                    CustomButtonButton.Attributes.Add("data-displaymodalfooter", true.ToString().ToLowerInvariant());
-                    var span = new TagBuilder("i");
-                    span.AddCssClass(CustomButtonIconClass);
-                    CustomButtonButton.InnerHtml.AppendHtml(span);
-                    TagItems.Add(CustomButtonButton);
+                if (DisabledToolTip)
+                {
+                    CustomButtonButton.AddCssClass("disabled");
+                    CustomButtonButton.Attributes.Add("disabled", "disabled");
                 }
+                CustomButtonButton.Attributes.Add("data-tooltipaction", CustomButtonTooltipAction);
+                CustomButtonButton.AddCssClass("init-tooltip-modal");
+                CustomButtonButton.Attributes.Add("data-modaltitle", CustomButtonModaltitle);
+                CustomButtonButton.Attributes.Add("data-footerclosebtn", CustomButtonDisplayFooterCloseBtn.ToString().ToLower());
+                CustomButtonButton.Attributes.Add("data-footersubmitbtn", CustomButtonDisplayFooterSubmitBtn.ToString().ToLower());
+                CustomButtonButton.Attributes.Add("data-modalsize", CustomButtonModalsize);
+                CustomButtonButton.Attributes.Add("data-modalcallbackgrid", CustomButtonModalcallbackgrid);
+                CustomButtonButton.Attributes.Add("data-modalid", CustomButtonModalid);
+                CustomButtonButton.Attributes.Add("data-displaymodalfooter", true.ToString().ToLowerInvariant());
+                var span = new TagBuilder("i");
+                span.AddCssClass(CustomButtonIconClass);
+                CustomButtonButton.InnerHtml.AppendHtml(span);
+                TagItems.Add(CustomButtonButton);
             }
 
             string id = context.GetValue<string>("datatablecontainerid");
-            output.PreContent.SetHtmlContent("<div id='memorydatatablemenu_" + id+"' style='float:left'>");
+            output.PreContent.SetHtmlContent("<div id='memorydatatablemenu_" + id + "' style='float:left'>");
             output.PostContent.SetHtmlContent("</div>");
             output.TagMode = TagMode.StartTagAndEndTag;
         }
@@ -237,7 +233,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                 TooltipButton.AddCssClass("init-tooltip-external");
                 TooltipButton.Attributes.Add("data-pagetitle", TooltipPageTitle);
             }
-            
+
             TooltipButton.Attributes.Add("data-modaltitle", Modaltitle);
 
             TooltipButton.Attributes.Add("data-footerclosebtn", DisplayFooterCloseBtn.ToString().ToLower());
@@ -245,15 +241,15 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
 
             TooltipButton.Attributes.Add("data-modalsize", Modalsize);
             TooltipButton.Attributes.Add("data-modalcallbackgrid", Modalcallbackgrid);
-           
+
             TooltipButton.Attributes.Add("data-modalid", Modalid);
             TooltipButton.Attributes.Add("data-displaymodalfooter", true.ToString().ToLowerInvariant());
 
-            
-            foreach(var i in TagItems)
+
+            foreach (var i in TagItems)
             {
                 output.PreContent.AppendHtml(i);
-            }  
+            }
             await output.GetChildContentAsync();
         }
     }
@@ -262,16 +258,18 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
     {
         public string Action { get; set; }
         public string IconClass { get; set; }
-        public string ButtonClass {get;set;}
+        public string ButtonClass { get; set; }
         public string ButtonTitle { get; set; }
 
         [HtmlAttributeName("action-params")]
         public IDictionary<string, string> ActionParams { get; set; }
 
-        public OperationAction OperationAction { get; set; } = OperationAction.Update;
-        public OperationRessource? OperationRessource { get; set; }
+       // public OperationAction OperationAction { get; set; } = OperationAction.Update;
+        //public OperationRessource? OperationRessource { get; set; }
 
         protected readonly IHttpContextAccessor _contextAccessor;
+
+        public bool HasPermission { get; set; } = true;
 
         public JQueryDataTableTooltipiItem(IHttpContextAccessor contextAccessor)
         {
@@ -282,27 +280,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             base.Process(context, output);
-            if (OperationRessource != null && context.CheckUserPermissionAccess(OperationAction, OperationRessource.GetValueOrDefault(), _contextAccessor.HttpContext.User))
-            {
-                output.TagName = "button";
-                output.Attributes.Add("data-action", Action);
-                output.Attributes.Add("title", ButtonTitle);
-                var i = new TagBuilder("i");
-                i.AddCssClass(IconClass);
-                output.Content.AppendHtml(i);
-
-                string paramlist = string.Empty;
-                if (ActionParams != null)
-                {
-                    foreach (var p in ActionParams)
-                    {
-                        paramlist += string.IsNullOrEmpty(paramlist) ? string.Empty : ";";
-                        paramlist += string.Format("{0}:{1}", p.Key, p.Value);
-                    }
-                }
-                output.Attributes.Add("data-actionparams", paramlist);
-            }
-            else if(context.CheckUserPermissionAccess(OperationAction, _contextAccessor.HttpContext.User))
+            if (HasPermission)
             {
                 output.TagName = "button";
                 output.Attributes.Add("data-action", Action);
@@ -339,7 +317,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             base.Process(context, output);
-            output.Attributes.Add("class", ButtonClass+ " tooltip-item-bulk");
+            output.Attributes.Add("class", ButtonClass + " tooltip-item-bulk");
         }
     }
 
@@ -417,7 +395,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
         public string SelectIconClass { get; set; }
         public string SelectButtonClass { get; set; }
 
-        public JQueryDataTableModalToolTipSelect(IHttpContextAccessor contextAccessor) 
+        public JQueryDataTableModalToolTipSelect(IHttpContextAccessor contextAccessor)
             : base(contextAccessor)
         {
 
@@ -426,74 +404,70 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             await base.ProcessAsync(context, output);
-            if (context.HasKey(TagHelperExtensions.OperationRessourceKey))
+            if (HasPermission)
             {
-                var ressource = context.GetValue<OperationRessource>(TagHelperExtensions.OperationRessourceKey);
-                if (_contextAccessor.HttpContext.User.UserHasPermissionFor(ressource, OperationAction.Create))
+                SelectButton = new TagBuilder("button");
+                if (!string.IsNullOrEmpty(SelectButtonClass))
                 {
-                    SelectButton = new TagBuilder("button");
-                    if (!string.IsNullOrEmpty(SelectButtonClass))
-                    {
-                        SelectButton.AddCssClass(SelectButtonClass);
-                    }
-                    else
-                    {
-                        SelectButton.AddCssClass("btn btn-warning btn-icon");
-                    }
-                    if (DisabledSelect)
-                    {
-                        SelectButton.AddCssClass("disabled");
-                        SelectButton.Attributes.Add("disabled", "disabled");
-                    }
-                    SelectButton.AddCssClass("init-tooltip-modal");
-                    //SelectButton.AddCssClass("ml-1");
-
-                    SelectButton.Attributes.Add("title", SelectBtnTitle);
-                    SelectButton.Attributes.Add("data-tooltipaction", SelectButtonAction);
-
-                    SelectButton.Attributes.Add("data-modaltitle", SelectModalTitle);
-
-                    SelectButton.Attributes.Add("data-footerclosebtn", SelectDisplayFooterCloseBtn.ToString().ToLower());
-                    SelectButton.Attributes.Add("data-footersubmitbtn", SelectDisplayFooterSubmitBtn.ToString().ToLower());
-
-                    SelectButton.Attributes.Add("data-modalsize", Modalsize);
-                    SelectButton.Attributes.Add("data-modalcallbackgrid", Modalcallbackgrid);
-
-                    SelectButton.Attributes.Add("data-modalid", SelectModalId);
-                    var span = new TagBuilder("i");
-                    if (!string.IsNullOrEmpty(SelectIconClass))
-                    {
-                        span.AddCssClass(SelectIconClass);
-                    }
-                    else
-                    {
-                        span.AddCssClass("fas fa-reply");
-                    }
-                    SelectButton.InnerHtml.AppendHtml(span);
-                    TagItems.Add(SelectButton);
-                    output.PreContent.AppendHtml(SelectButton);
-                    await output.GetChildContentAsync();
+                    SelectButton.AddCssClass(SelectButtonClass);
                 }
+                else
+                {
+                    SelectButton.AddCssClass("btn btn-warning btn-icon");
+                }
+                if (DisabledSelect)
+                {
+                    SelectButton.AddCssClass("disabled");
+                    SelectButton.Attributes.Add("disabled", "disabled");
+                }
+                SelectButton.AddCssClass("init-tooltip-modal");
+                //SelectButton.AddCssClass("ml-1");
+
+                SelectButton.Attributes.Add("title", SelectBtnTitle);
+                SelectButton.Attributes.Add("data-tooltipaction", SelectButtonAction);
+
+                SelectButton.Attributes.Add("data-modaltitle", SelectModalTitle);
+
+                SelectButton.Attributes.Add("data-footerclosebtn", SelectDisplayFooterCloseBtn.ToString().ToLower());
+                SelectButton.Attributes.Add("data-footersubmitbtn", SelectDisplayFooterSubmitBtn.ToString().ToLower());
+
+                SelectButton.Attributes.Add("data-modalsize", Modalsize);
+                SelectButton.Attributes.Add("data-modalcallbackgrid", Modalcallbackgrid);
+
+                SelectButton.Attributes.Add("data-modalid", SelectModalId);
+                var span = new TagBuilder("i");
+                if (!string.IsNullOrEmpty(SelectIconClass))
+                {
+                    span.AddCssClass(SelectIconClass);
+                }
+                else
+                {
+                    span.AddCssClass("fas fa-reply");
+                }
+                SelectButton.InnerHtml.AppendHtml(span);
+                TagItems.Add(SelectButton);
+                output.PreContent.AppendHtml(SelectButton);
+                await output.GetChildContentAsync();
             }
         }
     }
 
 
-   [HtmlTargetElement("datatable-tooltip-external", ParentTag = "datatable-container", TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("datatable-tooltip-external", ParentTag = "datatable-container", TagStructure = TagStructure.WithoutEndTag)]
     public class JQueryDataTableExternalToolTip : JQueryDataTableToolTip
     {
         public string PageTitle { get; set; }
 
-        public JQueryDataTableExternalToolTip(IHttpContextAccessor contextAccessor) 
+        public JQueryDataTableExternalToolTip(IHttpContextAccessor contextAccessor)
             : base(contextAccessor)
         {
 
         }
 
-        public override async  Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             base.Process(context, output);
-            if (context.CheckUserPermissionAccess(OperationAction.Create, _contextAccessor.HttpContext.User))
+            if (HasPermission)
             {
                 TooltipButton.AddCssClass("init-tooltip-external");
                 TooltipButton.Attributes.Add("data-pagetitle", PageTitle);
@@ -512,11 +486,23 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
         protected TagBuilder AddRowButton { get; set; }
         protected TagBuilder DeleteRowButton { get; set; }
 
+        public JQueryDataTableToolTipIline(TagBuilder deleteRowButton, TagBuilder addRowButton)
+        {
+            AddRowButton = addRowButton;
+            DeleteRowButton = deleteRowButton;
+        }
+
+        public JQueryDataTableToolTipIline()
+        {
+            AddRowButton = new TagBuilder("button");
+            DeleteRowButton = new TagBuilder("button");
+        }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             output.TagName = "div";
             output.Attributes.Add("style", "display:inline;");
-            AddRowButton  = new TagBuilder("button");
+            AddRowButton = new TagBuilder("button");
             AddRowButton.AddCssClass("inlineaddrowbtn btn btn-icon btn-primary");
 
             DeleteRowButton = new TagBuilder("button");
@@ -719,7 +705,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                 {
                     case DataTableDataRangeFilterPeriode.Year:
                         start = new DateTime(now.Year, 1, 1);
-                        end = new DateTime(now.Year, 12, 31,23,59,0);
+                        end = new DateTime(now.Year, 12, 31, 23, 59, 0);
                         break;
                     case DataTableDataRangeFilterPeriode.Month:
                         start = new DateTime(now.Year, now.Month, 1);
@@ -735,7 +721,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                         break;
                     case DataTableDataRangeFilterPeriode.Day:
                         start = DateTime.Today;
-                        end=start.GetValueOrDefault().AddHours(23).AddMinutes(59);
+                        end = start.GetValueOrDefault().AddHours(23).AddMinutes(59);
                         break;
                 }
                 if (start.HasValue)
@@ -755,7 +741,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                 {
                     output.Attributes.Add("daterange-filter-end", string.Empty);
                 }
-               
+
             }
         }
     }
@@ -867,7 +853,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                 output.Attributes.Add("data", Source.Name);
                 output.Attributes.Add("name", string.IsNullOrEmpty(Source.Metadata.DisplayName) != true ? Source.Metadata.DisplayName : Source.Name);
                 output.Attributes.Add("autoWidth", AutoWidth.ToString().ToLowerInvariant());
-               
+
 
                 var requiredAttributes = Source.Metadata.ContainerType
                                  .GetProperty(Source.Metadata.PropertyName)
@@ -901,22 +887,29 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                         output.Attributes.Add("inputdefaultvalue", InputDefaultValue.ToString());
                     }
 
-                    if (Source.ModelExplorer.ModelType.IsEnum || (Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType)!=null && Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType).IsEnum))
+                    if (Source.ModelExplorer.ModelType.IsEnum || (Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType) != null && Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType).IsEnum))
                     {
                         jq.SearchType = JQueryDataTableSearchInputType.EnumList;
                     }
-                    else if (Source.ModelExplorer.ModelType == typeof(DateTime) || (Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType))==typeof(DateTime) 
+                    else if (Source.ModelExplorer.ModelType == typeof(DateTime) || (Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType)) == typeof(DateTime)
                         || Source.ModelExplorer.ModelType == typeof(DateTime?))
                     {
-                        var datatypes = Source.Metadata.ContainerType.GetProperty(Source.Metadata.PropertyName)
+                        object[]? datatypes = Source.Metadata.ContainerType.GetProperty(Source.Metadata.PropertyName)
                             .GetCustomAttributes(typeof(DataTypeAttribute), true);
-
-                        if (datatypes != null & datatypes.Count() > 0)
+                        if (datatypes != null)
                         {
-                            var datatype = (datatypes[0] as DataTypeAttribute);
-                            if(datatype.DataType == DataType.Time)
+
+                            if (datatypes.Length > 0)
                             {
-                                jq.SearchType = JQueryDataTableSearchInputType.TimeCalendar;
+                                var datatype = (datatypes[0] as DataTypeAttribute);
+                                if (datatype != null && datatype.DataType == DataType.Time)
+                                {
+                                    jq.SearchType = JQueryDataTableSearchInputType.TimeCalendar;
+                                }
+                                else
+                                {
+                                    jq.SearchType = JQueryDataTableSearchInputType.Calendar;
+                                }
                             }
                             else
                             {
@@ -927,7 +920,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                         {
                             jq.SearchType = JQueryDataTableSearchInputType.Calendar;
                         }
-                        
+
                     }
                     else if (Source.ModelExplorer.ModelType == typeof(long) || Source.ModelExplorer.ModelType == typeof(int))
                     {
@@ -937,7 +930,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                     {
                         jq.SearchType = JQueryDataTableSearchInputType.EnumList;
                     }
-                    else if(Source.ModelExplorer.ModelType == typeof(IFormFile) || Source.ModelExplorer.ModelType ==typeof(FormFileWrapper))
+                    else if (Source.ModelExplorer.ModelType == typeof(IFormFile) || Source.ModelExplorer.ModelType == typeof(FormFileWrapper))
                     {
                         jq.SearchType = JQueryDataTableSearchInputType.InputFileUpload;
                     }
@@ -954,7 +947,8 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                         List<KeyValuePair<string, string>> enumValsMap = new List<KeyValuePair<string, string>>();
                         if (Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType) != null)
                         {
-                            foreach (var e in Enum.GetValues(Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType)))
+                            var types = Nullable.GetUnderlyingType(Source.ModelExplorer.ModelType);
+                            foreach (var e in Enum.GetValues(types))
                             {
                                 enumValsMap.Add(new KeyValuePair<string, string>(EnumsHelpers.GetDisplayName(e), e.ToString()));
                             }
@@ -967,7 +961,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
                             }
                         }
                         var orderableEnumValsMap = jq.OrderableEnum ? enumValsMap.OrderBy(s => s.Key).ToList() : enumValsMap.ToList();
-                        foreach(var el in orderableEnumValsMap)
+                        foreach (var el in orderableEnumValsMap)
                         {
                             enumvalues += string.IsNullOrEmpty(enumvalues) ? enumvalues : ";";
                             enumvalues += el.Value.ToString() + "," + el.Key;
@@ -1064,7 +1058,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
 
             output.Attributes.Add("hasfixedcolumns", HasFixedColumns.ToString().ToLowerInvariant());
             output.Attributes.Add("fixedcolumnleft", FixedColumnLeft.ToString());
-            output.Attributes.Add("fixedcolumnright",FixedColumnRight.ToString());
+            output.Attributes.Add("fixedcolumnright", FixedColumnRight.ToString());
 
             output.Attributes.Add("enabledrowselection", EnabledRowSelection.ToString().ToLowerInvariant());
             output.Attributes.Add("rowselectionmode", RowSelectionMode.ToString());
@@ -1094,7 +1088,7 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
             switch (Name)
             {
                 case DataTableButtonType.csv:
-                    output.Attributes.Add("name",Name.ToString());
+                    output.Attributes.Add("name", Name.ToString());
                     output.Attributes.Add("iconclass", "fas fa-file-excel");
                     output.Attributes.Add("buttonclass", "btn bg-green fg-white btn-icon btn-square");
                     output.Attributes.Add("filename", FileName);
@@ -1183,28 +1177,28 @@ namespace DvStyle.Memory.WebApp.CustomTagHelpers
     {
         PopUp = 1,
         External = 2,
-        Custom=3
+        Custom = 3
     }
 
     public enum DataTableRowSelectionMode
     {
-        Single=1,
-        Multi=2
+        Single = 1,
+        Multi = 2
     }
 
     public enum DataTableButtonType
     {
         csv = 1,
         selectAll = 2,
-        selectNone=3
+        selectNone = 3
     }
 
     public enum DataTableDataRangeFilterPeriode
     {
-        Year =0,
-        Month =1,
-        Week=2,
-        Day=3,
-        All=4
+        Year = 0,
+        Month = 1,
+        Week = 2,
+        Day = 3,
+        All = 4
     }
 }
