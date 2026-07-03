@@ -7,6 +7,10 @@ using DvStyle.OpenDataTable.TableDef;
 
 namespace DvStyle.OpenDataTable.Binders
 {
+    /// <summary>
+    /// Modèle de liaison pour les paramètres de traitement de données côté serveur.
+    /// Il est utilisé pour lier les données de la requête HTTP aux propriétés du modèle DataTableServerRequestHeader.
+    /// </summary>
     public class DataTableModelBinder : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
@@ -88,8 +92,7 @@ namespace DvStyle.OpenDataTable.Binders
                 uoFilters.Add(Guid.Parse(GetValue(bindingContext, "organisationunitfilters[" + c + "][key]")));
                 c++;
             }
-            model.UoFilters = uoFilters.ToArray();
-          
+           
             var ss = GetValue(bindingContext, "dtperiodestart");
             var se = GetValue(bindingContext, "dtperiodeend");
             DateTime parseDate;
@@ -106,7 +109,7 @@ namespace DvStyle.OpenDataTable.Binders
         private string GetValue(ModelBindingContext context, string key)
         {
             var result = context.ValueProvider.GetValue(key);
-            return result == null ? null : result.FirstValue;
+            return result == null ? string.Empty : result.FirstValue;
         }
     }
 }

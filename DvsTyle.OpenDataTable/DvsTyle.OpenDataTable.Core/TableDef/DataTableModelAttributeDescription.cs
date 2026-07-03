@@ -6,7 +6,7 @@ using DvStyle.OpenDataTable.Enums;
 namespace DvStyle.OpenDataTable.TableDef
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class JQueryDataTableAttribute : Attribute
+    public class DataTableModelAttributeDescription : Attribute
     {
         public bool Searchable { get; set; } = true;
         public bool Orderable { get; set; } = true;
@@ -21,7 +21,7 @@ namespace DvStyle.OpenDataTable.TableDef
         public object EnumDefaultValue { get; set; } = null;
         public object InputDefaultValue { get; set; } = null;
 
-        public JQueryDataTableAttribute()
+        public DataTableModelAttributeDescription()
         {
 
         }
