@@ -1,4 +1,8 @@
 <Solution>
-  <Project Path="AppSetUp/AppSetUp.csproj" />
   <Project Path="DvsTyle.OpenDataTable.Core/DvsTyle.OpenDataTable.Core.csproj" />
+  <Project Path="DvStyle.OpenDataTable.js/DvStyle.OpenDataTable.js.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="DvStyle.OpenDataTable.Sample.Mvc/DvStyle.OpenDataTable.Sample.Mvc.csproj" Id="03b6ca1a-a9cf-4811-8ca2-c6d10987ea6e" />
 </Solution>

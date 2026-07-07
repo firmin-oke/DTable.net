@@ -1,0 +1,15 @@
+{
+  "name": "dvstyle.opendatatable.js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Firmin OKE ONDO",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^10.6.0"
+  }
+}
