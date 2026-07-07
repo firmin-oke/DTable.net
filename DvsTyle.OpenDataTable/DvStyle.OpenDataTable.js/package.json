@@ -1,14 +1,31 @@
 {
   "name": "dvstyle.opendatatable.js",
   "version": "1.0.0",
-  "description": "",
+  "description": "Dynamic server-side DataTables for ASP.NET Core Razor TagHelpers — JS runtime.",
   "main": "app.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "datatables",
+    "asp.net-core",
+    "taghelper",
+    "razor",
+    "jquery"
+  ],
   "author": "Firmin OKE ONDO",
   "license": "MIT",
+  "peerDependencies": {
+    "jquery": "^3.7.1",
+    "bootstrap": "^4.6.2",
+    "datatables.net": "^2.3.8",
+    "datatables.net-buttons": "^3.2.6",
+    "datatables.net-fixedcolumns": "^5.0.5",
+    "datatables.net-select": "^3.1.3",
+    "jszip": "^3.10.1",
+    "sweetalert": "^2.1.2"
+  },
   "devDependencies": {
     "eslint": "^10.6.0"
   }
